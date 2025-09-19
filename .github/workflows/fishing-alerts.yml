@@ -55,13 +55,3 @@ jobs:
         with:
           name: state
           path: state.json
-
-      - name: Notify on failure (optional)
-        if: failure()
-        uses: slack/send@v3
-        with:
-          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          channel: fishing-alerts
-          text: "Fishing Alerts Workflow failed on ${{ github.repository }}. Check run #${{ github.run_id }}."
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
