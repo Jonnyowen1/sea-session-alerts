@@ -39,16 +39,17 @@ jobs:
           echo "WORLDTIDES_KEY=${{ secrets.WORLDTIDES_KEY }}" >> $GITHUB_ENV
 
       - name: Run fishing alert script with debug output
+        id: run-script
         run: |
           echo "Starting script execution..."
-          python fishing_alert.py
+          python fishing_alert.py 2>&1 | tee output.log
         env:
           PYTHONUNBUFFERED: 1  # Ensures logs are output in real-time
 
       - name: Check script exit code
         if: failure()
         run: |
-          echo "Script failed with exit code ${{ job.status }}. Please check the logs for details."
+          echo "Script failed with exit code ${{ steps.run-script.outcome }}. Please check the logs for details."
           exit 1
 
       - name: Upload state file (optional)
@@ -58,9 +59,9 @@ jobs:
           name: state
           path: state.json
 
-      - name: Upload logs on failure (optional)
+      - name: Upload script output on failure (optional)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: logs
-          path: /github/workspace/*.log  # Capture any log files if generated
+          name: script-output
+          path: output.log
