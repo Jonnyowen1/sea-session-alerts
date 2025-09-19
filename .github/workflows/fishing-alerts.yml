@@ -38,20 +38,29 @@ jobs:
           echo "PUSHOVER_USER=${{ secrets.PUSHOVER_USER }}" >> $GITHUB_ENV
           echo "WORLDTIDES_KEY=${{ secrets.WORLDTIDES_KEY }}" >> $GITHUB_ENV
 
-      - name: Run fishing alert script
-        run: python fishing_alert.py
+      - name: Run fishing alert script with debug output
+        run: |
+          echo "Starting script execution..."
+          python fishing_alert.py
         env:
           PYTHONUNBUFFERED: 1  # Ensures logs are output in real-time
 
       - name: Check script exit code
         if: failure()
         run: |
-          echo "Script failed. Please check the logs for details."
+          echo "Script failed with exit code ${{ job.status }}. Please check the logs for details."
           exit 1
 
       - name: Upload state file (optional)
         if: always()
-        uses: actions/upload-artifact@v4  # Updated to v4
+        uses: actions/upload-artifact@v4
         with:
           name: state
           path: state.json
+
+      - name: Upload logs on failure (optional)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: /github/workspace/*.log  # Capture any log files if generated
